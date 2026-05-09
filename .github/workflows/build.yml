@@ -1,4 +1,4 @@
-name: Android Build
+name: Swift Android Build
 
 on:
   push:
@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-    # This allows for manual triggering from the GitHub Actions UI
 
 jobs:
   build:
@@ -16,21 +15,44 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
+    - name: Install Swift
+      uses: swift-actions/setup-swift@v2
       with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
+        swift-version: "5.10"
 
-    - name: Grant Execute Permission for Gradlew
-      run: chmod +x gradlew
+    - name: Set up Android NDK
+      uses: nttld/setup-ndk@v1
+      with:
+        ndk-version: r26b
 
-    - name: Build with Gradle
-      run: ./gradlew assembleDebug
+    - name: Install Swift Android Toolchain
+      run: |
+        # Using the swift-android toolchain to allow Swift to compile for Android targets
+        curl -sL https://github.com/swift-arm/swift-android-toolchain/releases/latest/download/install.sh | bash
 
-    - name: Upload APK
+    - name: Build for Android (aarch64)
+      run: |
+        # This compiles your Swift code into a shared library (.so) for Android
+        swift build \
+          --triple aarch64-unknown-linux-android \
+          --sdk $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
+          -c release
+
+    - name: Package APK
+      run: |
+        # Since there are no Android files, we use a simple tool to wrap the binary
+        # If you have a specific wrapper script, call it here.
+        echo "Packaging shared library into APK structure..."
+        mkdir -p lib/arm64-v8a
+        cp .build/aarch64-unknown-linux-android/release/*.so lib/arm64-v8a/
+        
+        # Creating a basic unsigned APK for testing
+        zip -r LiveContainerAndroid.apk lib/
+
+    - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: debug-apk
-        path: app/build/outputs/apk/debug/app-debug.apk
+        name: Swift-Android-Shared-Library
+        path: |
+          .build/aarch64-unknown-linux-android/release/*.so
+          *.apk
