@@ -26,9 +26,10 @@ jobs:
       with:
         ndk-version: r26b
 
-    - name: Install Android Swift SDK
+    - name: Download and Install Android Swift SDK
       run: |
-        swift experimental-sdk install https://github.com/swift-arm/swift-android-toolchain/releases/download/5.10.1-release/swift-5.10.1-RELEASE-android-aarch64-24-sdk.artifactbundle.tar.gz
+        curl -L -o android-sdk.artifactbundle.tar.gz https://github.com/swift-arm/swift-android-toolchain/releases/download/5.10.1-release/swift-5.10.1-RELEASE-android-aarch64-24-sdk.artifactbundle.tar.gz
+        swift experimental-sdk install android-sdk.artifactbundle.tar.gz
 
     - name: Build Swift Project
       run: |
