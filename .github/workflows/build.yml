@@ -15,10 +15,15 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Install Swift 6.0
+    - name: Install Swift
       uses: swift-actions/setup-swift@v2
       with:
         swift-version: "6.0"
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y binutils-aarch64-linux-gnu
 
     - name: Set up Android NDK
       uses: nttld/setup-ndk@v1
@@ -26,9 +31,9 @@ jobs:
       with:
         ndk-version: r27
 
-    - name: Download and Install Android Swift SDK
+    - name: Download and Install Official Android Swift SDK
       run: |
-        curl -fSL -o android.artifactbundle.tar.gz https://github.com/swiftlang/swift-sdk-android/releases/download/6.0-release/swift-6.0-RELEASE-android-aarch64-24-sdk.artifactbundle.tar.gz
+        curl -fSL -o android.artifactbundle.tar.gz https://download.swift.org/swift-6.0.3-release/android-sdk/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE_android.artifactbundle.tar.gz
         swift sdk install android.artifactbundle.tar.gz
 
     - name: Build Swift Project
