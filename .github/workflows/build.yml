@@ -33,7 +33,7 @@ jobs:
 
     - name: Download and Install Official Android Swift SDK
       run: |
-        curl -fSL -o android.artifactbundle.tar.gz https://download.swift.org/swift-6.0.3-release/android-sdk/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE_android.artifactbundle.tar.gz
+        curl -fSL -o android.artifactbundle.tar.gz https://download.swift.org/swift-6.0.3-release/static-sdk/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE_android.artifactbundle.tar.gz
         swift sdk install android.artifactbundle.tar.gz
 
     - name: Build Swift Project
