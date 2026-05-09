@@ -22,37 +22,33 @@ jobs:
 
     - name: Set up Android NDK
       uses: nttld/setup-ndk@v1
+      id: setup-ndk
       with:
         ndk-version: r26b
 
     - name: Install Swift Android Toolchain
       run: |
-        # Using the swift-android toolchain to allow Swift to compile for Android targets
-        curl -sL https://github.com/swift-arm/swift-android-toolchain/releases/latest/download/install.sh | bash
+        wget https://github.com/swift-arm/swift-android-toolchain/releases/download/v5.10.1/swift-5.10.1-RELEASE-android-aarch64-24-sdk.tar.gz
+        mkdir -p ~/swift-android-sdk
+        tar -xzf swift-5.10.1-RELEASE-android-aarch64-24-sdk.tar.gz -C ~/swift-android-sdk
 
-    - name: Build for Android (aarch64)
+    - name: Build Swift Project
       run: |
-        # This compiles your Swift code into a shared library (.so) for Android
         swift build \
-          --triple aarch64-unknown-linux-android \
-          --sdk $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
+          --triple aarch64-unknown-linux-android24 \
+          --sdk ~/swift-android-sdk/usr/lib/swift/android/aarch64 \
+          -Xswiftc -I~/swift-android-sdk/usr/lib/swift/android/aarch64 \
+          -Xswiftc -L~/swift-android-sdk/usr/lib/swift/android/aarch64 \
           -c release
 
-    - name: Package APK
+    - name: Package Shared Library
       run: |
-        # Since there are no Android files, we use a simple tool to wrap the binary
-        # If you have a specific wrapper script, call it here.
-        echo "Packaging shared library into APK structure..."
-        mkdir -p lib/arm64-v8a
-        cp .build/aarch64-unknown-linux-android/release/*.so lib/arm64-v8a/
-        
-        # Creating a basic unsigned APK for testing
-        zip -r LiveContainerAndroid.apk lib/
+        mkdir -p distribution/lib/arm64-v8a
+        find .build/aarch64-unknown-linux-android24/release -maxdepth 1 -type f -name "*.so" -exec cp {} distribution/lib/arm64-v8a/ \;
+        cd distribution && zip -r ../LiveContainerAndroid-libs.zip .
 
-    - name: Upload Build Artifacts
+    - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Swift-Android-Shared-Library
-        path: |
-          .build/aarch64-unknown-linux-android/release/*.so
-          *.apk
+        name: LiveContainer-Android-Binaries
+        path: LiveContainerAndroid-libs.zip
