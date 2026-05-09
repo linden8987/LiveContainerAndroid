@@ -26,20 +26,15 @@ jobs:
       with:
         ndk-version: r26b
 
-    - name: Install Swift Android Toolchain
+    - name: Install Android Swift SDK
       run: |
-        wget https://github.com/swift-arm/swift-android-toolchain/releases/download/v5.10.1/swift-5.10.1-RELEASE-android-aarch64-24-sdk.tar.gz
-        mkdir -p ~/swift-android-sdk
-        tar -xzf swift-5.10.1-RELEASE-android-aarch64-24-sdk.tar.gz -C ~/swift-android-sdk
+        # Using the official Swift SDK installer for Android
+        swift sdk install https://github.com/swift-arm/swift-android-toolchain/releases/download/5.10.1-release/swift-5.10.1-RELEASE-android-aarch64-24-sdk.artifactbundle.tar.gz
 
     - name: Build Swift Project
       run: |
-        swift build \
-          --triple aarch64-unknown-linux-android24 \
-          --sdk ~/swift-android-sdk/usr/lib/swift/android/aarch64 \
-          -Xswiftc -I~/swift-android-sdk/usr/lib/swift/android/aarch64 \
-          -Xswiftc -L~/swift-android-sdk/usr/lib/swift/android/aarch64 \
-          -c release
+        # Use the installed SDK bundle to build
+        swift build --swift-sdk aarch64-unknown-linux-android24 -c release
 
     - name: Package Shared Library
       run: |
