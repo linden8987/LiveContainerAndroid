@@ -18,22 +18,22 @@ jobs:
     - name: Install Swift
       uses: swift-actions/setup-swift@v2
       with:
-        swift-version: "5.10"
+        swift-version: "6.0"
 
     - name: Set up Android NDK
       uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:
-        ndk-version: r26b
+        ndk-version: r27
 
     - name: Download and Install Android Swift SDK
       run: |
-        curl -L -o android-sdk.artifactbundle.tar.gz https://github.com/swift-arm/swift-android-toolchain/releases/download/5.10.1-release/swift-5.10.1-RELEASE-android-aarch64-24-sdk.artifactbundle.tar.gz
-        swift experimental-sdk install android-sdk.artifactbundle.tar.gz
+        curl -L -o android.artifactbundle.tar.gz https://github.com/swiftlang/swift-sdk-android/releases/download/6.0-release/swift-6.0-RELEASE-android-aarch64-24-sdk.artifactbundle.tar.gz
+        swift sdk install android.artifactbundle.tar.gz
 
     - name: Build Swift Project
       run: |
-        swift build --experimental-swift-sdk aarch64-unknown-linux-android24 -c release
+        swift build --swift-sdk aarch64-unknown-linux-android24 -c release
 
     - name: Package Shared Library
       run: |
